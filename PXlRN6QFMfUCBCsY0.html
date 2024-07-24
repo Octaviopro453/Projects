@@ -1,0 +1,848 @@
+<html><head><base href="https://cdn.jsdelivr.net/"><title>NexusBrowser - Tu Ventana al Mundo Digital</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+    --primary-color: #4a90e2;
+    --secondary-color: #3a7bd5;
+    --text-color: #333;
+    --background-color: #f4f7f9;
+    --toolbar-height: 60px;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body.dark-mode {
+    --primary-color: #2c3e50;
+    --secondary-color: #34495e;
+    --text-color: #ecf0f1;
+    --background-color: #1a1a1a;
+}
+
+.browser {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 100%;
+    margin: 0 auto;
+    background-color: #ffffff;
+    box-shadow: 0 0 30px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: background-color 0.3s;
+}
+
+.dark-mode .browser {
+    background-color: #2c3e50;
+}
+
+.toolbar {
+    display: flex;
+    padding: 10px 20px;
+    background-color: var(--primary-color);
+    align-items: center;
+    height: var(--toolbar-height);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    margin-right: 20px;
+    text-decoration: none;
+}
+
+#urlBar {
+    flex-grow: 1;
+    margin: 0 15px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    background-color: rgba(255,255,255,0.9);
+}
+
+.dark-mode #urlBar {
+    background-color: rgba(0,0,0,0.3);
+    color: var(--text-color);
+}
+
+#urlBar:focus {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    background-color: #ffffff;
+}
+
+.dark-mode #urlBar:focus {
+    background-color: rgba(0,0,0,0.5);
+}
+
+button {
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 10px;
+    margin-right: 10px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+button:hover {
+    background-color: var(--secondary-color);
+    transform: scale(1.1);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - var(--toolbar-height));
+    overflow-y: auto;
+}
+
+#contentFrame, #searchResults {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+#searchResults {
+    padding: 30px;
+    background-color: #fff;
+    overflow-y: auto;
+    display: none;
+}
+
+.dark-mode #searchResults {
+    background-color: #2c3e50;
+}
+
+.result {
+    padding: 20px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    transition: all 0.3s ease;
+    margin-bottom: 15px;
+    border-radius: 8px;
+}
+
+.dark-mode .result {
+    border-bottom-color: #4a6075;
+}
+
+.result:last-child {
+    border-bottom: none;
+}
+
+.result:hover {
+    background-color: #f8f8f8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.dark-mode .result:hover {
+    background-color: #34495e;
+}
+
+.result h3 {
+    margin: 0 0 10px 0;
+    color: var(--primary-color);
+    font-size: 20px;
+}
+
+.result p {
+    margin: 0;
+    font-size: 16px;
+    color: #666;
+    line-height: 1.6;
+}
+
+.dark-mode .result p {
+    color: #bdc3c7;
+}
+
+#menuBtn {
+    position: relative;
+}
+
+#menuDropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    z-index: 1001;
+    overflow: hidden;
+    width: 250px;
+}
+
+.dark-mode #menuDropdown {
+    background-color: #34495e;
+}
+
+#menuDropdown a {
+    display: block;
+    padding: 15px 25px;
+    color: var(--text-color);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 16px;
+}
+
+#menuDropdown a:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.no-results {
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+    color: #666;
+}
+
+.dark-mode .no-results {
+    color: #bdc3c7;
+}
+
+#settingsPanel {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    z-index: 1002;
+    max-width: 400px;
+    width: 90%;
+}
+
+.dark-mode #settingsPanel {
+    background-color: #34495e;
+}
+
+#settingsPanel h2 {
+    margin-top: 0;
+    color: var(--primary-color);
+}
+
+.setting-item {
+    margin-bottom: 20px;
+}
+
+.setting-item label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.setting-item input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+#closeSettings {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+#randomSites {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    margin: 20px;
+}
+
+.dark-mode #randomSites {
+    background-color: #2c3e50;
+}
+
+.site-card {
+    width: calc(20% - 20px);
+    margin: 10px;
+    padding: 15px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.dark-mode .site-card {
+    background-color: #34495e;
+}
+
+.site-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.site-card img {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 10px;
+}
+
+.site-card h3 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--text-color);
+}
+
+#mainContent {
+    padding: 20px;
+}
+
+#mainContent h1 {
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+#mainContent p {
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+#historyPanel, #bookmarksPanel {
+    display: none;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    margin: 20px;
+}
+
+.dark-mode #historyPanel, .dark-mode #bookmarksPanel {
+    background-color: #2c3e50;
+    color: #ecf0f1;
+}
+
+#historyPanel h2, #bookmarksPanel h2 {
+    color: var(--primary-color);
+    margin-top: 0;
+}
+
+#historyList, #bookmarksList {
+    list-style-type: none;
+    padding: 0;
+}
+
+#historyList li, #bookmarksList li {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.dark-mode #historyList li, .dark-mode #bookmarksList li {
+    border-bottom-color: #4a6075;
+}
+
+#historyList li:hover, #bookmarksList li:hover {
+    background-color: #f0f0f0;
+}
+
+.dark-mode #historyList li:hover, .dark-mode #bookmarksList li:hover {
+    background-color: #34495e;
+}
+
+@media (max-width: 768px) {
+    .toolbar {
+        flex-wrap: wrap;
+        height: auto;
+    }
+    #urlBar {
+        order: 1;
+        width: 100%;
+        margin: 10px 0;
+    }
+    #backBtn, #forwardBtn, #refreshBtn {
+        order: 2;
+    }
+    #goBtn, #menuBtn {
+        order: 3;
+    }
+    .browser {
+        border-radius: 0;
+    }
+    .site-card {
+        width: calc(33.33% - 20px);
+    }
+}
+
+@media (max-width: 480px) {
+    .site-card {
+        width: calc(50% - 20px);
+    }
+}
+</style></head>
+<body>
+<div class="browser">
+    <div class="toolbar">
+        <a href="#" class="logo" id="homeBtn">NexusBrowser</a>
+        <button id="backBtn" title="Atrás">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <button id="forwardBtn" title="Adelante">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <button id="refreshBtn" title="Actualizar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
+        </button>
+        <input type="text" id="urlBar" placeholder="Ingrese una URL o término de búsqueda">
+        <button id="goBtn" title="Ir">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <button id="menuBtn" title="Menú">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+            <div id="menuDropdown">
+                <a href="#" id="newTabBtn">Nueva pestaña</a>
+                <a href="#" id="historyBtn">Historial</a>
+                <a href="#" id="bookmarksBtn">Marcadores</a>
+                <a href="#" id="settingsBtn">Configuración</a>
+            </div>
+        </button>
+    </div>
+    <div id="content">
+        <iframe id="contentFrame" src="about:blank" style="display:none;"></iframe>
+        <div id="searchResults" style="display:none;"></div>
+        <div id="mainContent">
+            <h1>Bienvenido a NexusBrowser</h1>
+            <p>NexusBrowser es tu ventana al mundo digital, diseñado para ofrecerte una experiencia de navegación fluida, segura y personalizada. Con funciones únicas y un diseño moderno, NexusBrowser te permite explorar la web, realizar búsquedas y descubrir nuevos sitios con facilidad.</p>
+            <p>Características principales de NexusBrowser:</p>
+            <ul>
+                <li>Diseño adaptable y modo oscuro para una experiencia visual cómoda</li>
+                <li>Búsqueda integrada para encontrar lo que necesitas rápidamente</li>
+                <li>Descubre nuevos sitios web con nuestra función de sitios aleatorios</li>
+                <li>Gestión de historial de navegación personalizable</li>
+                <li>Configuraciones ajustables para adaptar NexusBrowser a tus preferencias</li>
+            </ul>
+            <p>¡Comienza tu aventura en la web con NexusBrowser ahora mismo!</p>
+        </div>
+        <div id="randomSites"></div>
+        <div id="historyPanel">
+            <h2>Historial de Navegación</h2>
+            <ul id="historyList"></ul>
+        </div>
+        <div id="bookmarksPanel">
+            <h2>Marcadores</h2>
+            <ul id="bookmarksList"></ul>
+        </div>
+    </div>
+</div>
+
+<div id="settingsPanel">
+    <h2>Configuración de NexusBrowser</h2>
+    <button id="closeSettings">&times;</button>
+    <div class="setting-item">
+        <label>
+            <input type="checkbox" id="darkModeToggle">
+            Modo oscuro
+        </label>
+    </div>
+    <div class="setting-item">
+        <label>
+            <input type="checkbox" id="adBlockToggle">
+            Bloquear anuncios
+        </label>
+    </div>
+    <div class="setting-item">
+        <label>
+            <input type="checkbox" id="contentBlockToggle">
+            Bloquear contenido
+        </label>
+    </div>
+    <div class="setting-item">
+        <label>
+            <input type="checkbox" id="historyToggle">
+            Guardar historial
+        </label>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+const urlBar = document.getElementById('urlBar');
+const contentFrame = document.getElementById('contentFrame');
+const backBtn = document.getElementById('backBtn');
+const forwardBtn = document.getElementById('forwardBtn');
+const refreshBtn = document.getElementById('refreshBtn');
+const goBtn = document.getElementById('goBtn');
+const searchResults = document.getElementById('searchResults');
+const menuBtn = document.getElementById('menuBtn');
+const menuDropdown = document.getElementById('menuDropdown');
+const settingsPanel = document.getElementById('settingsPanel');
+const closeSettings = document.getElementById('closeSettings');
+const darkModeToggle = document.getElementById('darkModeToggle');
+const adBlockToggle = document.getElementById('adBlockToggle');
+const contentBlockToggle = document.getElementById('contentBlockToggle');
+const historyToggle = document.getElementById('historyToggle');
+const randomSitesContainer = document.getElementById('randomSites');
+const mainContent = document.getElementById('mainContent');
+const homeBtn = document.getElementById('homeBtn');
+const historyPanel = document.getElementById('historyPanel');
+const bookmarksPanel = document.getElementById('bookmarksPanel');
+const historyList = document.getElementById('historyList');
+const bookmarksList = document.getElementById('bookmarksList');
+
+let history = [];
+let currentIndex = -1;
+let bookmarks = [];
+
+// Lista de sitios web aleatorios
+const randomSites = [
+    { name: "Wikipedia", url: "https://www.wikipedia.org", icon: "https://www.wikipedia.org/static/favicon/wikipedia.ico" },
+    { name: "GitHub", url: "https://github.com", icon: "https://github.githubassets.com/favicons/favicon.svg" },
+    { name: "Stack Overflow", url: "https://stackoverflow.com", icon: "https://cdn.sstatic.net/Sites/stackoverflow/Img/favicon.ico" },
+    { name: "MDN Web Docs", url: "https://developer.mozilla.org", icon: "https://developer.mozilla.org/favicon-48x48.cbbd161b.png" },
+    { name: "Reddit", url: "https://www.reddit.com", icon: "https://www.redditstatic.com/desktop2x/img/favicon/favicon-32x32.png" },
+    { name: "Twitter", url: "https://twitter.com", icon: "https://abs.twimg.com/favicons/twitter.ico" },
+    { name: "YouTube", url: "https://www.youtube.com", icon: "https://www.youtube.com/s/desktop/12d6b690/img/favicon_32.png" },
+    { name: "Amazon", url: "https://www.amazon.com", icon: "https://www.amazon.com/favicon.ico" },
+    { name: "Netflix", url: "https://www.netflix.com", icon: "https://assets.nflxext.com/us/ffe/siteui/common/icons/nficon2016.ico" },
+    { name: "Spotify", url: "https://www.spotify.com", icon: "https://www.scdn.co/i/_global/favicon.png" }
+];
+
+// Función para obtener sitios aleatorios
+function getRandomSites(count) {
+    const shuffled = randomSites.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+}
+
+// Función para actualizar la lista de sitios aleatorios
+function updateRandomSites() {
+    const sites = getRandomSites(5);
+    randomSitesContainer.innerHTML = '';
+    sites.forEach(site => {
+        const card = document.createElement('div');
+        card.className = 'site-card';
+        card.innerHTML = `
+            <img src="${site.icon}" alt="${site.name} icon">
+            <h3>${site.name}</h3>
+        `;
+        card.addEventListener('click', () => loadUrl(site.url));
+        randomSitesContainer.appendChild(card);
+    });
+}
+
+// Cargar configuración guardada
+let settings = JSON.parse(localStorage.getItem('nexusBrowserSettings')) || {
+    darkMode: false,
+    adBlock: false,
+    contentBlock: false,
+    saveHistory: true
+};
+
+// Aplicar configuración inicial
+applySettings();
+
+function applySettings() {
+    document.body.classList.toggle('dark-mode', settings.darkMode);
+    darkModeToggle.checked = settings.darkMode;
+    adBlockToggle.checked = settings.adBlock;
+    contentBlockToggle.checked = settings.contentBlock;
+    historyToggle.checked = settings.saveHistory;
+}
+
+function saveSettings() {
+    localStorage.setItem('nexusBrowserSettings', JSON.stringify(settings));
+}
+
+function loadUrl(url) {
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://' + url;
+    }
+    contentFrame.style.display = 'block';
+    searchResults.style.display = 'none';
+    mainContent.style.display = 'none';
+    randomSitesContainer.style.display = 'none';
+    historyPanel.style.display = 'none';
+    bookmarksPanel.style.display = 'none';
+    contentFrame.src = url;
+    urlBar.value = url;
+    if (settings.saveHistory) {
+        history = history.slice(0, currentIndex + 1);
+        history.push(url);
+        currentIndex = history.length - 1;
+        saveHistory();
+        updateHistoryPanel();
+    }
+    updateNavButtons();
+}
+
+function updateNavButtons() {
+    backBtn.disabled = currentIndex <= 0;
+    forwardBtn.disabled = currentIndex >= history.length - 1;
+}
+
+async function search(query) {
+    try {
+        const response = await axios.get(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json`);
+        const results = response.data.RelatedTopics;
+
+        searchResults.innerHTML = `<h2>Resultados de búsqueda para: "${query}"</h2>`;
+        if (results.length === 0) {
+            searchResults.innerHTML += '<div class="no-results">No se encontraron resultados para su búsqueda.</div>';
+        } else {
+            results.forEach(result => {
+                if (result.Result) {
+                    const div = document.createElement('div');
+                    div.className = 'result';
+                    div.innerHTML = `
+                        <h3>${result.Text}</h3>
+                        <p>${result.Result}</p>
+                    `;
+                    div.onclick = () => {
+                        const parser = new DOMParser();
+                        const htmlDoc = parser.parseFromString(result.Result, 'text/html');
+                        const link = htmlDoc.querySelector('a');
+                        if (link && link.href) {
+                            loadUrl(link.href);
+                        }
+                    };
+                    searchResults.appendChild(div);
+                }
+            });
+        }
+        contentFrame.style.display = 'none';
+        searchResults.style.display = 'block';
+        mainContent.style.display = 'none';
+        randomSitesContainer.style.display = 'none';
+        historyPanel.style.display = 'none';
+        bookmarksPanel.style.display = 'none';
+        if (settings.saveHistory) {
+            history.push(query);
+            currentIndex = history.length - 1;
+            saveHistory();
+            updateHistoryPanel();
+        }
+    } catch (error) {
+        console.error('Error en la búsqueda:', error);
+        searchResults.innerHTML = '<p>Error al realizar la búsqueda. Por favor, intente de nuevo.</p>';
+        contentFrame.style.display = 'none';
+        searchResults.style.display = 'block';
+        mainContent.style.display = 'none';
+        randomSitesContainer.style.display = 'none';
+        historyPanel.style.display = 'none';
+        bookmarksPanel.style.display = 'none';
+    }
+}
+
+function saveHistory() {
+    localStorage.setItem('nexusBrowserHistory', JSON.stringify(history));
+}
+
+function loadHistory() {
+    const savedHistory = localStorage.getItem('nexusBrowserHistory');
+    if (savedHistory) {
+        history = JSON.parse(savedHistory);
+        currentIndex = history.length - 1;
+        updateHistoryPanel();
+    }
+}
+
+function updateHistoryPanel() {
+    historyList.innerHTML = '';
+    history.slice().reverse().forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        li.onclick = () => loadUrl(item);
+        historyList.appendChild(li);
+    });
+}
+
+function showHomePage() {
+    contentFrame.style.display = 'none';
+    searchResults.style.display = 'none';
+    mainContent.style.display = 'block';
+    randomSitesContainer.style.display = 'block';
+    historyPanel.style.display = 'none';
+    bookmarksPanel.style.display = 'none';
+    updateRandomSites();
+}
+
+urlBar.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        if (urlBar.value.includes('.') && !urlBar.value.includes(' ')) {
+            loadUrl(urlBar.value);
+        } else {
+            search(urlBar.value);
+        }
+    }
+});
+
+goBtn.addEventListener('click', () => {
+    if (urlBar.value.includes('.') && !urlBar.value.includes(' ')) {
+        loadUrl(urlBar.value);
+    } else {
+        search(urlBar.value);
+    }
+});
+
+backBtn.addEventListener('click', () => {
+    if (currentIndex > 0) {
+        currentIndex--;
+        loadUrl(history[currentIndex]);
+    }
+});
+
+forwardBtn.addEventListener('click', () => {
+    if (currentIndex < history.length - 1) {
+        currentIndex++;
+        loadUrl(history[currentIndex]);
+    }
+});
+
+refreshBtn.addEventListener('click', () => {
+    if (contentFrame.style.display === 'block') {
+        contentFrame.src = contentFrame.src;
+    } else if (searchResults.style.display === 'block') {
+        search(urlBar.value);
+    } else {
+        showHomePage();
+    }
+});
+
+homeBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    showHomePage();
+});
+
+contentFrame.addEventListener('load', () => {
+    urlBar.value = contentFrame.contentWindow.location.href;
+});
+
+menuBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    menuDropdown.style.display = menuDropdown.style.display === 'block' ? 'none' : 'block';
+});
+
+document.addEventListener('click', () => {
+    menuDropdown.style.display = 'none';
+    settingsPanel.style.display = 'none';
+});
+
+// Funciones del menú
+document.getElementById('newTabBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    showHomePage();
+});
+
+document.getElementById('historyBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    contentFrame.style.display = 'none';
+    searchResults.style.display = 'none';
+    mainContent.style.display = 'none';
+    randomSitesContainer.style.display = 'none';
+    historyPanel.style.display = 'block';
+    bookmarksPanel.style.display = 'none';
+    updateHistoryPanel();
+});
+
+document.getElementById('bookmarksBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    contentFrame.style.display = 'none';
+    searchResults.style.display = 'none';
+    mainContent.style.display = 'none';
+    randomSitesContainer.style.display = 'none';
+    historyPanel.style.display = 'none';
+    bookmarksPanel.style.display = 'block';
+    // Aquí se podría implementar la lógica para mostrar los marcadores
+});
+
+document.getElementById('settingsBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    settingsPanel.style.display = 'block';
+});
+
+closeSettings.addEventListener('click', () => {
+    settingsPanel.style.display = 'none';
+});
+
+settingsPanel.addEventListener('click', (e) => {
+    e.stopPropagation();
+});
+
+darkModeToggle.addEventListener('change', () => {
+    settings.darkMode = darkModeToggle.checked;
+    applySettings();
+    saveSettings();
+});
+
+adBlockToggle.addEventListener('change', () => {
+    settings.adBlock = adBlockToggle.checked;
+    saveSettings();
+    // Implementar lógica de bloqueo de anuncios aquí
+});
+
+contentBlockToggle.addEventListener('change', () => {
+    settings.contentBlock = contentBlockToggle.checked;
+    saveSettings();
+    // Implementar lógica de bloqueo de contenido aquí
+});
+
+historyToggle.addEventListener('change', () => {
+    settings.saveHistory = historyToggle.checked;
+    saveSettings();
+    if (!settings.saveHistory) {
+        history = [];
+        currentIndex = -1;
+        localStorage.removeItem('nexusBrowserHistory');
+        updateHistoryPanel();
+    }
+});
+
+updateNavButtons();
+loadHistory();
+showHomePage();
+
+// Animación suave al cargar la página
+document.addEventListener('DOMContentLoaded', () => {
+    document.body.style.opacity = '0';
+    setTimeout(() => {
+        document.body.style.transition = 'opacity 0.5s ease-in-out';
+        document.body.style.opacity = '1';
+    }, 100);
+});
+</script>
+</body></html>
